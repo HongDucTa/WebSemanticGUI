@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="583.0" prefWidth="854.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
+   <children>
+      <TableView fx:id="resultTable" editable="true" layoutX="14.0" layoutY="14.0" prefHeight="378.0" prefWidth="435.0">
+        <columns>
+          <TableColumn fx:id="titleTable" prefWidth="75.0" text="Title" >
+            <cellValueFactory>
+                <PropertyValueFactory property="title" />
+            </cellValueFactory>
+          </TableColumn>
+          <TableColumn fx:id="yearTable" minWidth="2.0" prefWidth="58.0" text="Year" >
+            <cellValueFactory>
+                <PropertyValueFactory property="year" />
+            </cellValueFactory>
+          </TableColumn>
+            <TableColumn fx:id="countryTable" prefWidth="75.0" text="Country" >
+            <cellValueFactory>
+                <PropertyValueFactory property="country" />
+            </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="genreTable" prefWidth="75.0" text="Genre" >
+            <cellValueFactory>
+                <PropertyValueFactory property="genre" />
+            </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="actorsTable" prefWidth="75.0" text="Actors" >
+            <cellValueFactory>
+                <PropertyValueFactory property="actors" />
+            </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="directorTable" prefWidth="75.0" text="Director" >
+            <cellValueFactory>
+                <PropertyValueFactory property="directors" />
+            </cellValueFactory>
+            </TableColumn>
+        </columns>
+      </TableView>
+      <GridPane layoutX="489.0" layoutY="14.0" prefHeight="251.0" prefWidth="328.0">
+        <columnConstraints>
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints maxHeight="414.0" minHeight="10.0" prefHeight="173.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <TableView prefHeight="251.0" prefWidth="547.0">
+              <columns>
+                <TableColumn prefWidth="115.0" text="Item" />
+                <TableColumn prefWidth="96.0" text="Value" />
+                  <TableColumn prefWidth="116.0" text="Include / Exclude" />
+              </columns>
+            </TableView>
+         </children>
+      </GridPane>
+      <ComboBox fx:id="comboBoxCriteria" layoutX="489.0" layoutY="364.0" prefHeight="32.0" prefWidth="150.0" />
+      <RadioButton fx:id="radioInclude" layoutX="579.0" layoutY="319.0" mnemonicParsing="false" onAction="#enableInclude" selected="true" text="Include" />
+      <RadioButton fx:id="radioExclude" layoutX="664.0" layoutY="319.0" mnemonicParsing="false" onAction="#enableExclude" text="Exclude" />
+      <TextField layoutX="664.0" layoutY="367.0" prefHeight="32.0" prefWidth="149.0" />
+      <Button layoutX="489.0" layoutY="411.0" mnemonicParsing="false" onAction="#addFilter" prefHeight="32.0" prefWidth="322.0" text="Add filter" />
+      <Button layoutX="489.0" layoutY="456.0" mnemonicParsing="false" onAction="#clearFilter" prefHeight="32.0" prefWidth="322.0" text="Clear filters" />
+      <Button layoutX="489.0" layoutY="501.0" mnemonicParsing="false" onAction="#executeQuery" prefHeight="32.0" prefWidth="322.0" text="Execute query" />
+   </children>
+</AnchorPane>
