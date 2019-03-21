@@ -60,7 +60,6 @@ public class Controller implements Initializable {
         );
         comboBoxCriteria.setItems(optionsCriteria);
         comboBoxCriteria.getSelectionModel().select(0);
-        executeQuery();
     }
 
     public void enableInclude()
@@ -93,26 +92,29 @@ public class Controller implements Initializable {
         String criteriaValue;
         String includeCriteria;
         String row;
+        String boundEntity;
         for (int i = 0;i < conditionsList.size();i++)
         {
-            row = "?x ";
+            row = "";
             criteria = conditionsList.get(i).getCriteria();
             criteriaValue = conditionsList.get(i).getValue();
             includeCriteria = conditionsList.get(i).getIncludeOrExclude();
             switch (criteria)
             {
                 case "Actor":
-                    row = row + ":hasActor ";
+                    row = "?movie :hasActor ?actor ." +
+                            "?actor :hasName \""+ criteriaValue + "\"";
                     break;
                 case "Director":
-                    row = row + ":hasDirector ";
+                    row = "?movie :hasDirector ?director ." +
+                            "?director :hasName \"" + criteriaValue + "\"";
                     break;
                 case "Genre":
-                    row = row + ":hasGenre ";
+                    row = row + ":hasGenre :" + criteriaValue;
                 default:
                     break;
             }
-            row = row + criteriaValue;
+            System.out.println("->" + row);
 
             if (includeCriteria.equals("false"))
             {
@@ -126,11 +128,22 @@ public class Controller implements Initializable {
 
     public void clearFilter()
     {
+        criteriaTable.getItems().remove(criteriaTable.getSelectionModel().getFocusedIndex());
+    }
+
+    public void clearAllFilters()
+    {
         criteriaTable.getItems().remove(0,criteriaTable.getItems().size());
+    }
+
+    public void clearResults()
+    {
+        resultTable.getItems().remove(0,resultTable.getItems().size());
     }
 
     public void executeQuery()
     {
+        clearResults();
         String conditions = generateQueryFromTable();
 
         Model model = ModelFactory.createDefaultModel();
@@ -152,37 +165,16 @@ public class Controller implements Initializable {
                         " (GROUP_CONCAT(DISTINCT ?actor; SEPARATOR=\", \") AS ?actors) " +
                         " (GROUP_CONCAT(DISTINCT ?director; SEPARATOR=\", \") AS ?directors) " +
                         "WHERE { " +
-                        "?x rdf:type owl:NamedIndividual ." +
-                        "?x :hasActor ?actor ." +
-                        "?x :hasTitle ?title ." +
-                        "?x :hasGenre ?genre ." +
-                        "?x :hasCountry ?country ." +
-                        "?x :hasDirector ?dirtector" +
-                        "?x :hasActor :georgeClooney ." +
-                        "}" +
-                        "GROUP BY ?title";
-/*
-        String queryString =
-                "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
-                        "PREFIX owl: <http://www.w3.org/2002/07/owl#> " +
-                        "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> " +
-                        "PREFIX : <http://www.semanticweb.org/julian/ontologies/2019/2/untitled-ontology-3#> " +
-                        "PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> " +
-                        "SELECT" +
-                        " ?title" +
-                        " (GROUP_CONCAT(DISTINCT ?year; SEPARATOR=\", \") AS ?years) " +
-                        " (GROUP_CONCAT(DISTINCT ?country; SEPARATOR=\", \") AS ?countries) " +
-                        " (GROUP_CONCAT(DISTINCT ?genre; SEPARATOR=\" ; \") AS ?genres)" +
-                        " (GROUP_CONCAT(DISTINCT ?actor; SEPARATOR=\", \") AS ?actors) " +
-                        " (GROUP_CONCAT(DISTINCT ?director; SEPARATOR=\", \") AS ?directors) " +
-                        "WHERE { " +
-                        "?x rdf:type owl:NamedIndividual ." +
-                        "?x :hasActor ?actor ." +
-                        "?x :hasTitle ?title ." +
+                        "?movie rdf:type owl:NamedIndividual ." +
+                        "OPTIONAL {?movie :hasActor ?actor .}" +
+                        "?movie :hasTitle ?title ." +
+                        "OPTIONAL {?movie :hasGenre ?genre .}" +
+                        "OPTIONAL {?movie :hasCountry ?country .}" +
+                        "OPTIONAL {?movie :hasDirector ?director .}" +
+                        "OPTIONAL {?movie :hasYear ?year .}" +
                         conditions +
                         "}" +
                         "GROUP BY ?title";
-*/
 
         System.out.println(queryString);
         Query query = QueryFactory.create(queryString);
@@ -198,24 +190,26 @@ public class Controller implements Initializable {
         {
             QueryExecution qeBis = QueryExecutionFactory.create(query,model);
             results = qeBis.execSelect();
-            //ResultSetFormatter.out(System.out,results,query);
-            QuerySolution querySolution = results.next();
-            System.out.println(querySolution);
-            String title,actors,years,countries,genre,directors;
-            title = querySolution.getLiteral("title").toString();
-            actors = querySolution.getLiteral("actors").toString();
-            //years = querySolution.getLiteral("years").toString();
-            //countries = querySolution.getLiteral("countries").toString();
-            //genre = querySolution.getLiteral("genres").toString();
-            //directors = querySolution.getLiteral("directors").toString();
+            QuerySolution querySolution;
 
-            //ResultTableRow resultTableRow = new ResultTableRow(title,years,countries,genre,actors,directors);
-            //addRowToResultTable(resultTableRow);
+            while (results.hasNext())
+            {
+                querySolution = results.next();
+                System.out.println(querySolution);
+                String title, actors, years, countries, genre, directors;
+                title = querySolution.getLiteral("title").toString();
+                try {actors = querySolution.getLiteral("actors").toString();} catch (Exception e){actors = "";}
+                try {years = querySolution.getLiteral("years").toString();} catch (Exception e){years = "";}
+                try {countries = querySolution.getLiteral("countries").toString();} catch (Exception e){countries = "";}
+                try {genre = querySolution.getLiteral("genres").toString();} catch (Exception e){genre = "";}
+                try {directors = querySolution.getLiteral("directors").toString();} catch (Exception e){directors = "";}
+
+                ResultTableRow resultTableRow = new ResultTableRow(title, years, countries, genre, actors,directors);
+                addRowToResultTable(resultTableRow);
+            }
 
             qeBis.close();
         }
-
-        //ResultTableRow row = new ResultTableRow("Kill Bill (volume1)","2003","USA","Thriller, Crime, Action","Georges","Mark");
     }
 
     public void addRowToResultTable(ResultTableRow row)
@@ -223,9 +217,5 @@ public class Controller implements Initializable {
         ObservableList<ResultTableRow> liste = FXCollections.observableArrayList();
         liste.add(row);
         resultTable.getItems().add(row);
-        resultTable.getItems().addAll(liste);
-        resultTable.getItems().addAll(liste);
-        resultTable.getItems().addAll(liste);
-
     }
 }
