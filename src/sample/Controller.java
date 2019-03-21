@@ -103,14 +103,14 @@ public class Controller implements Initializable {
             {
                 case "Actor":
                     row = "?movie :hasActor ?actor ." +
-                            "?actor :hasName \""+ criteriaValue + "\"";
+                            "?actor :hasName \""+ criteriaValue + "\" .";
                     break;
                 case "Director":
                     row = "?movie :hasDirector ?director ." +
-                            "?director :hasName \"" + criteriaValue + "\"";
+                            "?director :hasName \"" + criteriaValue + "\" .";
                     break;
                 case "Genre":
-                    row = row + ":hasGenre :" + criteriaValue;
+                    row = "?movie :hasGenre :" + criteriaValue + " .";
                 default:
                     break;
             }
@@ -121,7 +121,7 @@ public class Controller implements Initializable {
                 row = "filter not exists { " + row + " }";
             }
 
-            condition = condition + row + " .\n";
+            condition = condition + row + "\n";
         }
         return condition;
     }
